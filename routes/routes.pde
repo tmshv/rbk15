@@ -1,75 +1,59 @@
-ArrayList<Street> streets = new ArrayList<Street>();
 ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 Camera camera = new Camera();
 
+ArrayList<Crossroad> crossroads = new ArrayList<Crossroad>();
+
+Graph graph = new Graph();
+Projector proj = new SphericalMercator();
+
 void setup() {
-  size(500, 500);
-  SphericalMercator proj = new SphericalMercator();
+  size(800, 600);
+  
+  GeoJSON geo = new GeoJSON("../features.geojson");
 
-  JSONArray features = loadJSONObject("../features.geojson")
-    .getJSONArray("features");
-
-  for (int f = 0; f < features.size(); f ++) {
-    JSONArray geo_coords = features
-      .getJSONObject(f)
-      .getJSONObject("geometry")
-      .getJSONArray("coordinates");
-
-    ArrayList<LatLon> coords = new ArrayList<LatLon>();
-    for (int i = 0; i < geo_coords.size(); i ++) {
-      JSONArray g = geo_coords.getJSONArray(i);
-      LatLon c = new LatLon(g.getFloat(0), g.getFloat(1));
-      coords.add(c);
-    }
-
-    ArrayList<PVector> street_coords = new ArrayList<PVector>();
-    for (LatLon ll : coords) {
-      PVector xy = proj.project(ll);
-      street_coords.add(xy);
-    }
-
-    streets.add(new Street(street_coords));
+  for(Feature f : geo.features){
+    Geometry g = f.geometry;
+    LatLon first = g.first();
+    LatLon last = g.last();
+    
+    addCrossroads(first, f);
+    addCrossroads(last, f);
   }
-
-  for (Street street : streets) {
-    Vehicle v = new Vehicle();
-    v.drive(street);
-    vehicles.add(v);
+  
+  for(Crossroad c : crossroads){
+    int id = getCrossroadsID(c.coord);
+    GraphNode node = new GraphNode(id, c.coord.lat, c.coord.lon);
+    graph.addNode(node);
   }
-
-  camera.zoom = .5;
-  camera.setView(6670954, 3552487);
-
-  //TEST
-  //  camera.zoom = 1;
-  //  camera.setView(0, 0);
-  //  
-  //  ArrayList<PVector> street_coords = new ArrayList<PVector>();
-  //  street_coords.add(new PVector(0, 0));
-  //  street_coords.add(new PVector(200, 200));
-  //  street_coords.add(new PVector(240, 100));
-  //  street_coords.add(new PVector(40, 10));
-  //  Street demoStreet = new Street(street_coords);
-  //  streets.add(demoStreet);
-  //  
-  //  Vehicle v = new Vehicle(10);
-  //  v.drive(demoStreet);
-  //  vehicles.add(v);
+  
+  for(Feature f : geo.features){
+    Geometry g = f.geometry;
+    int first = getCrossroadsID(g.first());
+    int last = getCrossroadsID(g.last());
+    
+    graph.addEdge(first, last, 0);
+  }
+  
+  Driver driver = new Driver(graph, 0);
+   
+  Vehicle v = new Vehicle(driver, .001, proj);
+  vehicles.add(v);
+  
+  camera.zoom = .01;
 }
 
 void draw() {
   background(204);
   noFill();
 
+  camera.setView(proj.project(vehicles.get(0).location));
+
   pushMatrix();
   translate(width/2, height/2);
   camera.applyMatrix();
 
-  for (Street street : streets) {
-    street.draw();
-  }
-
   for (Vehicle vehicle : vehicles) {
+    vehicle.size = 10 / camera.zoom;
     vehicle.step();
     vehicle.draw();
   }
@@ -106,4 +90,22 @@ void keyPressed() {
   if (key == '2') {
     camera.zoomIn();
   }
+}
+
+void addCrossroads(LatLon ll, Feature f){
+  for (Crossroad c : this.crossroads){
+    if(c.coord.isEqual(ll)) return;
+  }
+  
+  Crossroad cr = new Crossroad(ll);
+  cr.addRoad(f);
+  this.crossroads.add(cr);
+}
+
+int getCrossroadsID(LatLon ll){
+  int length = this.crossroads.size();
+  for(int i=0; i < length; i++){
+    if(this.crossroads.get(i).coord.isEqual(ll)) return i;
+  }
+  return -1;
 }

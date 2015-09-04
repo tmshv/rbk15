@@ -15,10 +15,10 @@ class Camera extends PVector {
   }
   
   void zoomIn(){
-    this.zoom += .1;
+    this.zoom += .025;
   }
   
   void zoomOut(){
-    this.zoom -= .1;
+    this.zoom -= .025;
   }
 }

@@ -1,30 +1,40 @@
 class Vehicle{
   float speed;
+  float size;
   
   boolean moving = false;
   
-  PVector location = new PVector();
-  Track track = new Track();
+  LatLon location = new LatLon();
+  Track track;
   
-  private PVector targetCoord;
+  private LatLon targetCoord;
   private int targetCoordIndex;
-  private Street street;
+  private ArrayList<LatLon> route;
   
-  public Vehicle(){
-    this(3);  
+  private Projector projector;
+  
+  public Vehicle(Driver driver, Projector projector){
+    this(driver, 3, projector);  
   }
   
-  public Vehicle(float speed){
+  public Vehicle(Driver driver, float speed, Projector projector){
     this.speed = speed;
+    this.size = 5;
+    this.projector = projector;
+    this.track = new Track(projector);
+    
+    this.drive(driver.navigate());
   }
   
-  void drive(Street street){
-    this.street = street;
+  void drive(Route route){
+    this.drive(route, 0);
+  }
+  
+  void drive(Route route, int delay){
+    this.route = route.bake();
     this.moving = true;
     
-    PVector start = this.street.coords.get(0);
-    this.location.x = start.x;
-    this.location.y = start.y;
+    this.location.setLatLon(this.route.get(0));
     
     this.targetCoordIndex = 1;
     this.nextTarget();
@@ -34,14 +44,14 @@ class Vehicle{
   
   void step(){
     if(this.moving){
-      PVector delta = PVector.sub(this.targetCoord, this.location);
+      PVector delta = PVector.sub(this.targetCoord.toPVector(), this.location.toPVector());
       if(delta.mag() > this.speed){
         delta.normalize();
         delta.mult(this.speed);
       
-        this.location.add(delta);
+        this.location.add(this.getLatLonFromPVector(delta));
       }else{
-        this.location.add(delta);
+        this.location.add(this.getLatLonFromPVector(delta));
         this.nextTarget();    
       }
       
@@ -50,8 +60,8 @@ class Vehicle{
   }
   
   void nextTarget(){
-    if(this.targetCoordIndex < this.street.coords.size()){
-      this.targetCoord = this.street.coords.get(this.targetCoordIndex);    
+    if(this.targetCoordIndex < this.route.size()){
+      this.targetCoord = this.route.get(this.targetCoordIndex);    
     }else{
       this.moving = false;
     }
@@ -59,15 +69,19 @@ class Vehicle{
   }
   
   void writeLocation(){
-    this.track.write(this.location.get());
+    this.track.write(this.location.clone());
   }
   
   void draw(){
-    float size = 5;
+    PVector xy = this.projector.project(this.location);
     noStroke();
     fill(255);
     ellipseMode(CENTER);
-    ellipse(this.location.x, this.location.y, size, size);
+    ellipse(xy.x, xy.y, this.size, this.size);
     this.track.draw();
+  }
+  
+  private LatLon getLatLonFromPVector(PVector v){
+    return new LatLon(v.x, v.y);
   }
 }

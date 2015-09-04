@@ -1,5 +1,5 @@
 //EPSG:3857 CRS
-class SphericalMercator {
+class SphericalMercator extends Projector{
   float R = 6378137;
   float MAX_LATITUDE = 85.0511287798;
 
