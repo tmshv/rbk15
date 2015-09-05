@@ -1,8 +1,8 @@
 class Track{
   ArrayList<LatLon> history = new ArrayList<LatLon>();
-  private Projector projector;
+  private IProjector projector;
   
-  public Track(Projector projector){
+  public Track(IProjector projector){
     this.projector = projector;
   }
   

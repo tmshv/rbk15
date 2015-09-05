@@ -1,66 +1,67 @@
 import pathfinder.*;
 
 class Driver {
-  public Graph graph;
+  public City city;
   public int algorithm = 0;
   
-  public Driver(Graph graph, int algorhitm){
-    this.graph = graph;
+  private float f = 1.0f;
+  
+  private Vehicle vehicle;
+  
+  public Driver(City city, int algorhitm){
+    this.city = city;
     this.algorithm = algorithm;
   }
   
-  public Route navigate(){
-//  Route route = new Route();
-//  for(GraphNode node : graphRoute){
-//    int id = node.id();
-//    Crossroad cr = crossroads.get(id);
-//    route.chain(cr);
-//  }
-//    
-//  println(geo.features.size());
-//  println(crossroads.size());
-//  println(graphRoute.length);
-//  println(route.features.size());
+  public void drive(Vehicle v){
+    this.vehicle = v;
+  }
+  
+  public void navigate(){
+    if(this.vehicle == null) return;
     
-    int start_id = 0;
-    int end_id = 3000;
-    
-    IGraphSearch finder = makePathFinder(graph, algorithm);
-    finder.search(start_id, end_id, true);
+    IGraphSearch finder = makePathFinder(this.city.graph, algorithm);
+    finder.search(this.getStart(), this.getEnd(), true);
     GraphNode[] graphRoute = finder.getRoute();
-    
-    ArrayList<LatLon> route_coords = new ArrayList<LatLon>();
+    Route route = new Route();
     for(GraphNode node : graphRoute){
       int id = node.id();
-      Crossroad cr = crossroads.get(id);
-      route_coords.add(cr.coord);
+      Crossroad cr = city.crossroads.get(id);
+      route.chain(cr);
     }
+       
+    this.vehicle.move(route);
+  }
+  
+  private int getStart(){
+    return (int) random(1000);
+  }
+  
+  private int getEnd(){
+    return (int) random(1000);
+//    return 3000;
+  }
+  
+  IGraphSearch makePathFinder(Graph graph, int alg){
+    IGraphSearch pf = null;
     
-    Route route = new Route();
-    route.addFeature(new Feature(route_coords));
-    return route;
+    switch(alg){
+    case 0:
+      pf = new GraphSearch_DFS(graph);
+      break;
+    case 1:
+      pf = new GraphSearch_BFS(graph);
+      break;
+    case 2:
+      pf = new GraphSearch_Dijkstra(graph);
+      break;
+    case 3:
+      pf = new GraphSearch_Astar(graph, new AshCrowFlight(this.f));
+      break;
+    case 4:
+      pf = new GraphSearch_Astar(graph, new AshManhattan(this.f));
+      break;
+    }
+    return pf;
   }
-}
-
-IGraphSearch makePathFinder(Graph graph, int pathFinder){
-  IGraphSearch pf = null;
-  float f = 1.0f;
-  switch(pathFinder){
-  case 0:
-    pf = new GraphSearch_DFS(graph);
-    break;
-  case 1:
-    pf = new GraphSearch_BFS(graph);
-    break;
-  case 2:
-    pf = new GraphSearch_Dijkstra(graph);
-    break;
-  case 3:
-    pf = new GraphSearch_Astar(graph, new AshCrowFlight(f));
-    break;
-  case 4:
-    pf = new GraphSearch_Astar(graph, new AshManhattan(f));
-    break;
-  }
-  return pf;
 }

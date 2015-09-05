@@ -1,60 +1,54 @@
-ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
-Camera camera = new Camera();
+City city;
+Camera camera;
 
-ArrayList<Crossroad> crossroads = new ArrayList<Crossroad>();
-
-Graph graph = new Graph();
-Projector proj = new SphericalMercator();
+IProjector proj = new SphericalMercator();
 
 void setup() {
   size(800, 600);
   
   GeoJSON geo = new GeoJSON("../features.geojson");
-
-  for(Feature f : geo.features){
-    Geometry g = f.geometry;
-    LatLon first = g.first();
-    LatLon last = g.last();
-    
-    addCrossroads(first, f);
-    addCrossroads(last, f);
-  }
+  city = new City(geo, proj);  
   
-  for(Crossroad c : crossroads){
-    int id = getCrossroadsID(c.coord);
-    GraphNode node = new GraphNode(id, c.coord.lat, c.coord.lon);
-    graph.addNode(node);
-  }
-  
-  for(Feature f : geo.features){
-    Geometry g = f.geometry;
-    int first = getCrossroadsID(g.first());
-    int last = getCrossroadsID(g.last());
-    
-    graph.addEdge(first, last, 0);
-  }
-  
-  Driver driver = new Driver(graph, 0);
-   
-  Vehicle v = new Vehicle(driver, .001, proj);
-  vehicles.add(v);
-  
+  camera = new Camera();
   camera.zoom = .01;
+  camera.setView(proj.project(city.vehicles.get(0).location));
 }
 
 void draw() {
   background(204);
   noFill();
 
-  camera.setView(proj.project(vehicles.get(0).location));
+//  camera.setView(proj.project(city.vehicles.get(0).location));
 
   pushMatrix();
   translate(width/2, height/2);
   camera.applyMatrix();
 
-  for (Vehicle vehicle : vehicles) {
+  city.update();
+
+  ArrayList<Feature> streets = city.fc.getFeatures();
+  for (Feature f : streets) {
+    stroke(0);
+    noFill();
+    beginShape();
+    for(LatLon ll : f.geometry.coords){
+      PVector xy = proj.project(ll);
+      vertex(xy.x, xy.y);
+    }
+    endShape();
+  }
+  
+  ellipseMode(CENTER);
+  for (Crossroad cr : city.crossroads) {
+    stroke(255);
+    noFill();
+   
+    PVector xy = proj.project(cr.coord);
+    ellipse(xy.x, xy.y, 4, 4);
+  }
+
+  for (Vehicle vehicle : city.vehicles) {
     vehicle.size = 10 / camera.zoom;
-    vehicle.step();
     vehicle.draw();
   }
 
@@ -68,19 +62,19 @@ void draw() {
 void keyPressed() {
   float step = map(camera.zoom, 0, 1, 100, 10);
   if (keyCode == UP) {
-    camera.y += step;
-  }
-
-  if (keyCode == DOWN) {
     camera.y -= step;
   }
 
+  if (keyCode == DOWN) {
+    camera.y += step;
+  }
+
   if (keyCode == LEFT) {
-    camera.x += step;
+    camera.x -= step;
   }
 
   if (keyCode == RIGHT) {
-    camera.x -= step;
+    camera.x += step;
   }
 
   if (key == '1') {
@@ -90,22 +84,4 @@ void keyPressed() {
   if (key == '2') {
     camera.zoomIn();
   }
-}
-
-void addCrossroads(LatLon ll, Feature f){
-  for (Crossroad c : this.crossroads){
-    if(c.coord.isEqual(ll)) return;
-  }
-  
-  Crossroad cr = new Crossroad(ll);
-  cr.addRoad(f);
-  this.crossroads.add(cr);
-}
-
-int getCrossroadsID(LatLon ll){
-  int length = this.crossroads.size();
-  for(int i=0; i < length; i++){
-    if(this.crossroads.get(i).coord.isEqual(ll)) return i;
-  }
-  return -1;
 }

@@ -13,10 +13,12 @@ class Route {
   
   void chain(Crossroad cr){
     if(this.last_chain != null){
-      Feature segment = this.last_chain.both(cr);
+      Feature segment = cr.both(this.last_chain);
       
       if(segment != null){
         this.addFeature(segment);
+      }else{
+        println("jop");
       }
     }
     
@@ -26,7 +28,8 @@ class Route {
   ArrayList<LatLon> bake(){
     ArrayList<LatLon> route = new ArrayList<LatLon>();
     for(Feature f : this.features){
-      route.addAll(f.geometry.coords);
+      ArrayList<LatLon> g = f.geometry.coords;
+      route.addAll(g);
     }
     return route;
   }

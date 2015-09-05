@@ -11,27 +11,29 @@ class Vehicle{
   private int targetCoordIndex;
   private ArrayList<LatLon> route;
   
-  private Projector projector;
+  private IProjector projector;
   
-  public Vehicle(Driver driver, Projector projector){
-    this(driver, 3, projector);  
+  public Vehicle(IProjector projector){
+    this(3, projector);  
   }
   
-  public Vehicle(Driver driver, float speed, Projector projector){
+  public Vehicle(float speed, IProjector projector){
     this.speed = speed;
     this.size = 5;
     this.projector = projector;
     this.track = new Track(projector);
-    
-    this.drive(driver.navigate());
   }
   
-  void drive(Route route){
-    this.drive(route, 0);
+  void move(Route route){
+    this.move(route, 0);
   }
   
-  void drive(Route route, int delay){
+  void move(Route route, int delay){
     this.route = route.bake();
+    if(this.route.size() == 0) {
+      this.moving = false;
+      return;
+    }
     this.moving = true;
     
     this.location.setLatLon(this.route.get(0));
@@ -42,9 +44,13 @@ class Vehicle{
     this.writeLocation();
   }
   
-  void step(){
+  void update(){
     if(this.moving){
-      PVector delta = PVector.sub(this.targetCoord.toPVector(), this.location.toPVector());
+      PVector delta = PVector.sub(
+        this.targetCoord.toPVector(),
+        this.location.toPVector()
+      );
+      
       if(delta.mag() > this.speed){
         delta.normalize();
         delta.mult(this.speed);
