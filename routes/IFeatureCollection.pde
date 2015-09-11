@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
 interface IFeatureCollection {
-  public ArrayList<Feature> getFeatures();  
+  public ArrayList<Feature> getFeatures();
+  LatLon[] bounds();
 }

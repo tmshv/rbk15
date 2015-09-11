@@ -12,8 +12,8 @@ class Track{
   
   void draw(){
     noFill();
-    stroke(255);
-    strokeWeight(3);
+    stroke(200, 200, 0);
+    strokeWeight(1);
     beginShape();
     for(LatLon ll : this.history){
       PVector c = this.projector.project(ll);

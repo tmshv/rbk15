@@ -1,3 +1,5 @@
+import java.util.Iterator;
+
 class City {
   IFeatureCollection fc;
   
@@ -27,25 +29,40 @@ class City {
       int last = getCrossroadID(g.last());
       graph.addEdge(first, last, 0);
     }
+  }
+  
+  public void addVehicle(){
+    addVehicle(1);
+  }
+  
+  public void addVehicle(int count){
+    Vehicle v;
+    Driver driver;
     
-    for(int i=0; i<10; i++){
-      Vehicle v;
-      Driver driver;
-      
-      v = new Vehicle(.001, proj);
-      driver = new Driver(this, 2);
-      driver.drive(v);     
-      driver.navigate();
-      
-      vehicles.add(v);
-      drivers.add(driver);
-    }
+    v = new Vehicle(.00025, proj);
+    driver = new Driver(this, 2);
+    driver.drive(v);     
+    driver.navigate();
+    
+    vehicles.add(v);
+    drivers.add(driver);
+    count --;
+    if(count > 0) addVehicle(count);
   }
   
   public void update(){
-    for(Vehicle v : this.vehicles){
+    Iterator<Vehicle> i = this.vehicles.iterator();
+    while(i.hasNext()){
+      Vehicle v = i.next();
       v.update();
+      if(!v.moving){
+             
+        i.remove(); //      this.vehicles.remove(v);
+      }
     }
+    
+    int add = 10 - this.vehicles.size();
+    if(add > 0) addVehicle(add);
   }
   
   void addCrossroad(LatLon ll, Feature f){

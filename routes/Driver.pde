@@ -23,23 +23,29 @@ class Driver {
     IGraphSearch finder = makePathFinder(this.city.graph, algorithm);
     finder.search(this.getStart(), this.getEnd(), true);
     GraphNode[] graphRoute = finder.getRoute();
-    Route route = new Route();
-    for(GraphNode node : graphRoute){
-      int id = node.id();
-      Crossroad cr = city.crossroads.get(id);
-      route.chain(cr);
+    
+    if(graphRoute.length > 0){
+      Route route = new Route();
+      for(GraphNode node : graphRoute){
+        int id = node.id();
+        Crossroad cr = city.crossroads.get(id);
+        route.chain(cr);
+      }
+         
+      this.vehicle.move(route);
+    }else{
+      navigate();
     }
-       
-    this.vehicle.move(route);
   }
   
   private int getStart(){
-    return (int) random(1000);
+    int n = this.city.graph.getNbrNodes();
+    return (int) random(n);
   }
   
   private int getEnd(){
-    return (int) random(1000);
-//    return 3000;
+    int n = this.city.graph.getNbrNodes();
+    return (int) random(n);
   }
   
   IGraphSearch makePathFinder(Graph graph, int alg){

@@ -46,10 +46,7 @@ class Vehicle{
   
   void update(){
     if(this.moving){
-      PVector delta = PVector.sub(
-        this.targetCoord.toPVector(),
-        this.location.toPVector()
-      );
+      PVector delta = getVelocity();
       
       if(delta.mag() > this.speed){
         delta.normalize();
@@ -63,6 +60,13 @@ class Vehicle{
       
       this.writeLocation();
     }
+  }
+  
+  PVector getVelocity(){
+    return PVector.sub(
+      this.targetCoord.toPVector(),
+      this.location.toPVector()
+    );
   }
   
   void nextTarget(){
@@ -79,12 +83,26 @@ class Vehicle{
   }
   
   void draw(){
+//    pushMatrix();
+    
+    PVector velo = this.getVelocity();
+    float angle = atan2(velo.y, velo.x);
+    
     PVector xy = this.projector.project(this.location);
     noStroke();
-    fill(255);
+    fill(200, 200, 0);
+    
+    
+//    translate(xy.x, xy.y);
+//    rotate(angle);
     ellipseMode(CENTER);
     ellipse(xy.x, xy.y, this.size, this.size);
+//    rect(0, 0, this.size, this.size/2);
+//    rect(xy.x, xy.y, this.size, this.size/2);
+//    popMatrix();
+
     this.track.draw();
+    
   }
   
   private LatLon getLatLonFromPVector(PVector v){

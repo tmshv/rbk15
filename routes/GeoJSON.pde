@@ -18,4 +18,25 @@ class GeoJSON implements IFeatureCollection{
       this.features.add(new Feature(f));
     }
   }
+  
+  LatLon[] bounds(){
+    float min_lat = 1000000000;
+    float max_lat = 0;
+    float min_lon = 1000000000;
+    float max_lon = 0;
+    
+    for (Feature f : features) {
+      for(LatLon ll : f.geometry.coords){
+        if(min_lat > ll.lat) min_lat = ll.lat;
+        if(min_lon > ll.lon) min_lon = ll.lon;
+        if(max_lat < ll.lat) max_lat = ll.lat;
+        if(max_lon < ll.lon) max_lon = ll.lon;
+      }
+    }
+    
+    LatLon[] b = new LatLon[2];
+    b[0] = new LatLon(min_lat, min_lon);
+    b[1] = new LatLon(max_lat, max_lon);
+    return b;
+  }
 }
