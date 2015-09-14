@@ -39,11 +39,13 @@ class Driver {
   }
   
   private int getStart(){
+    //return 34;
     int n = this.city.graph.getNbrNodes();
     return (int) random(n);
   }
   
   private int getEnd(){
+    //return 24;
     int n = this.city.graph.getNbrNodes();
     return (int) random(n);
   }

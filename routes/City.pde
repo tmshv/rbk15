@@ -39,7 +39,7 @@ class City {
     Vehicle v;
     Driver driver;
     
-    v = new Vehicle(.00025, proj);
+    v = new Vehicle(.00025+random(0.00010), proj);
     driver = new Driver(this, 2);
     driver.drive(v);     
     driver.navigate();
@@ -57,11 +57,11 @@ class City {
       v.update();
       if(!v.moving){
              
-        i.remove(); //      this.vehicles.remove(v);
+        i.remove();
       }
     }
     
-    int add = 10 - this.vehicles.size();
+    int add = 200 - this.vehicles.size();
     if(add > 0) addVehicle(add);
   }
   

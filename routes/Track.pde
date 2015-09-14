@@ -6,6 +6,15 @@ class Track{
     this.projector = projector;
   }
   
+  LatLon last(){
+    if(history.size() > 1){
+      int i = history.size() - 2;
+      return history.get(i);
+    }else{
+      return null;
+    }
+  }
+  
   void write(LatLon coord){
     this.history.add(coord);  
   }

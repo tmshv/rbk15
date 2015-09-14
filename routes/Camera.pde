@@ -1,12 +1,21 @@
 class Camera{
   LatLon target;
   IProjector projector;
-  
+  PVector offset;
   boolean following;
   
-  Camera(IProjector p){
+  Camera(IProjector p, PVector o){
     target = new LatLon();
     projector = p;
+    offset = o;
+  }
+  
+  LatLon getCoordAtScreen(float x, float y){
+    PVector coord = projector.project(target);
+    coord.sub(offset);
+    coord.x += x;
+    coord.y += y;
+    return projector.unproject(coord);
   }
   
   void moveTarget(float lat, float lon){
@@ -28,10 +37,7 @@ class Camera{
   }
   
   void update(){
-    this.applyMatrix();
-  }
-  
-  void applyMatrix(){
+    translate(offset.x, offset.y);
     PVector coord = projector.project(target); 
     translate(-coord.x, -coord.y);
   }

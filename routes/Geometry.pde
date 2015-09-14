@@ -14,7 +14,9 @@ class Geometry{
     JSONArray geo_coords = geometry.getJSONArray("coordinates");
     for (int i = 0; i < geo_coords.size(); i ++) {
       JSONArray g = geo_coords.getJSONArray(i);
-      this.coords.add(new LatLon(g.getFloat(0), g.getFloat(1)));
+      float lat = g.getFloat(1);
+      float lon = g.getFloat(0);
+      this.coords.add(new LatLon(lat, lon));
     }
   }
   

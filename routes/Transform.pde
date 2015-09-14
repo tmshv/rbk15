@@ -16,4 +16,10 @@ class Transform{
     point.y = scale * (this.c * point.y + this.d);
     return point;
   }
+  
+  public PVector untransform(PVector point, float scale){
+    point.x = (point.x / scale - this.b) / this.a;
+    point.y = (point.y / scale - this.d) / this.c;
+    return point; 
+  }
 }

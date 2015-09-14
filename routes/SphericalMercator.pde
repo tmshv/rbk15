@@ -9,7 +9,7 @@ class SphericalMercator implements IProjector{
   public SphericalMercator(){
     //float s = 0.5 / (PI * this.R);
     //this.t = new Transform(s, 0.5, -s, 0.5);
-    this.t = new Transform(1, 0, 1, 0);
+    this.t = new Transform(1, 0, -1, 0);
   }
 
   PVector project(LatLon latlon) {
@@ -26,7 +26,8 @@ class SphericalMercator implements IProjector{
 
   LatLon unproject(PVector point) {
     float d = 180 / PI;
-
+    
+    point = t.untransform(point.get(), this.scale);
     return new LatLon(
       (2 * atan(exp(point.y / this.R)) - (PI / 2)) * d,
       point.x * d / this.R

@@ -1,10 +1,15 @@
 class Vehicle{
+  color[] tints = {#f9ed69, #f08a5d, #b83b5e, #6a2c70};
+  
   float speed;
   float size;
+  int paint;
   
   boolean moving = false;
   
   LatLon location = new LatLon();
+  PVector velocity = new PVector();
+  //LatLon acceleration = new LatLon();
   Track track;
   
   private LatLon targetCoord;
@@ -22,6 +27,8 @@ class Vehicle{
     this.size = 5;
     this.projector = projector;
     this.track = new Track(projector);
+    
+    this.paint = this.tints[(int) random(this.tints.length)];
   }
   
   void move(Route route){
@@ -46,16 +53,34 @@ class Vehicle{
   
   void update(){
     if(this.moving){
-      PVector delta = getVelocity();
+      PVector v = getVelocity();
       
-      if(delta.mag() > this.speed){
-        delta.normalize();
-        delta.mult(this.speed);
+      //float dist = this.location.dist(this.targetCoord);
       
-        this.location.add(this.getLatLonFromPVector(delta));
+      //this.location.add(this.velocity.x, this.velocity.y);
+      //if(dist < .001){
+      //  PVector lastVelocity = this.targetCoord.toPVector().sub(this.location.toPVector());
+      //  this.location.add(lastVelocity.x, lastVelocity.y);
+
+      //  this.nextTarget();
+        
+      //  lastVelocity = PVector.sub(this.velocity, lastVelocity);
+      //  this.location.add(lastVelocity.x, lastVelocity.y);
+      //}
+      
+      
+      if(v.mag() > this.speed){
+        v.normalize();
+        v.mult(this.speed);
+        this.location.add(this.getLatLonFromPVector(v));
       }else{
-        this.location.add(this.getLatLonFromPVector(delta));
-        this.nextTarget();    
+        float d = this.speed - v.mag();
+        this.location.add(this.getLatLonFromPVector(v));
+        this.nextTarget();
+        v = getVelocity();
+        v.normalize();
+        v.mult(d);
+        this.location.add(this.getLatLonFromPVector(v));
       }
       
       this.writeLocation();
@@ -63,15 +88,19 @@ class Vehicle{
   }
   
   PVector getVelocity(){
-    return PVector.sub(
-      this.targetCoord.toPVector(),
-      this.location.toPVector()
-    );
+   return PVector.sub(
+     this.targetCoord.toPVector(),
+     this.location.toPVector()
+   );
   }
   
   void nextTarget(){
     if(this.targetCoordIndex < this.route.size()){
-      this.targetCoord = this.route.get(this.targetCoordIndex);    
+      this.targetCoord = this.route.get(this.targetCoordIndex);
+      this.velocity = this.targetCoord.toPVector()
+        .sub(this.location.toPVector())
+        .normalize()
+        .mult(speed);
     }else{
       this.moving = false;
     }
@@ -85,23 +114,30 @@ class Vehicle{
   void draw(){
 //    pushMatrix();
     
-    PVector velo = this.getVelocity();
-    float angle = atan2(velo.y, velo.x);
+    //PVector velo = this.getVelocity();
+    //float angle = atan2(velo.y, velo.x);
     
     PVector xy = this.projector.project(this.location);
-    noStroke();
-    fill(200, 200, 0);
-    
+    //noStroke();
+    //fill(200, 200, 0);
     
 //    translate(xy.x, xy.y);
 //    rotate(angle);
-    ellipseMode(CENTER);
-    ellipse(xy.x, xy.y, this.size, this.size);
+    //ellipseMode(CENTER);
+    //ellipse(xy.x, xy.y, this.size, this.size);
 //    rect(0, 0, this.size, this.size/2);
 //    rect(xy.x, xy.y, this.size, this.size/2);
 //    popMatrix();
 
-    this.track.draw();
+    LatLon last = this.track.last();
+    if(last != null){
+      PVector pxy = this.projector.project(last);
+      //stroke(255, 255, 0);
+      stroke(this.paint);
+      line(pxy.x, pxy.y, xy.x, xy.y);
+    }
+
+    //this.track.draw();
     
   }
   
