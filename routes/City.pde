@@ -8,6 +8,8 @@ class City {
   ArrayList<Crossroad> crossroads = new ArrayList<Crossroad>();
   Graph graph = new Graph();
   
+  int trafficLimit = 1000;
+  
   public City(IFeatureCollection fc, IProjector proj){
     this.fc = fc;
     ArrayList<Feature> features = fc.getFeatures();
@@ -61,7 +63,7 @@ class City {
       }
     }
     
-    int add = 200 - this.vehicles.size();
+    int add = this.trafficLimit - this.vehicles.size();
     if(add > 0) addVehicle(add);
   }
   
@@ -84,5 +86,31 @@ class City {
       if(this.crossroads.get(i).coord.isEqual(ll)) return i;
     }
     return -1;
+  }
+  
+  void drawStreets(){
+    pushStyle();
+      stroke(100);
+      strokeWeight(1);
+      noFill();
+      ArrayList<Feature> streets = getFeatures();
+      for (Feature f : streets) {
+        beginShape();
+        for(LatLon ll : f.geometry.coords){
+         PVector xy = proj.project(ll);
+         vertex(xy.x, xy.y);
+        }
+        endShape();
+      }
+    popStyle();
+  }
+  
+  LatLon getCenter(){
+    IFeatureCollection fc = getFeatures();
+    LatLon[] bound = fc.bounds();
+    return new LatLon(
+      (bound[0].lat + bound[1].lat) / 2,
+      (bound[0].lon + bound[1].lon) / 2
+    );
   }
 }

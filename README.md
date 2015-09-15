@@ -2,8 +2,9 @@
 
 ## Controls
 - *Arrows* to navigation
-- *1* to zooming out
-- *2* to zooming in
+- *-* to zooming out
+- *=* to zooming in
+- *0* to start position
 
 ## Dependencies
 - [Path Finder Library](http://www.lagers.org.uk/pfind/index.html)

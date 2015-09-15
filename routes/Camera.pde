@@ -2,7 +2,9 @@ class Camera{
   LatLon target;
   IProjector projector;
   PVector offset;
-  boolean following;
+
+  private boolean following;
+  private int zoom = 1;
   
   Camera(IProjector p, PVector o){
     target = new LatLon();
@@ -42,11 +44,17 @@ class Camera{
     translate(-coord.x, -coord.y);
   }
   
-  void zoomIn(float step){
-    this.projector.setScale(this.projector.getScale() + step);
+  int zoomIn(){
+    zoom++;
+    return zoom;
   }
   
-  void zoomOut(float step){
-    this.projector.setScale(this.projector.getScale() - step);
+  int zoomOut(){
+    zoom = max(1, --zoom);
+    return zoom;
+  }
+  
+  int getZoom(){
+    return zoom;
   }
 }

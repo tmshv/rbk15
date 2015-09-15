@@ -13,69 +13,37 @@ String path = "../streets.geojson";
 void setup() {
   size(1200, 700);
   smooth();
+  background(0);
   
   geo = new GeoJSON(path);
   city = new City(geo, proj);
-  city.addVehicle(200);
+  city.addVehicle(city.trafficLimit);
+  center = city.getCenter();
   
-  camera = new Camera(proj, new PVector(width/2, height/2));
-  center = getCenter(geo);  
-//  camera.setView(proj.project(center));
-    
-  ArrayList<Feature> streets = geo.getFeatures();
-  
-  proj.scale = 0.02;
-//  sm.scale = 1;
-  
- camera.lookAt(center);
-//  camera.lookAt(streets.get(100).geometry.coords.get(0));
-//  camera.lookAt(view);
-
-  //camera.follow(city.vehicles.get(0).location);
+  camera = new Camera(proj, new PVector(width/2, height/2));  
+  camera.lookAt(center);
 }
 
 void draw() {
-  //background(0);
-  noStroke();
-  fill(0, 20);
-  rect(0, 0, width, height);
-  
-  noFill();
+  background(0);
+  //noStroke();
+  //fill(0, 20);
+  //rect(0, 0, width, height);
+    
   LatLon mouse = camera.getCoordAtScreen(mouseX, mouseY);
   
-  ArrayList<Feature> streets = geo.getFeatures();
-
   pushMatrix();
+  proj.scale = map(camera.getZoom(), 1, 10, 0.02, .1);
   camera.update();
-  city.update();
+  city.update();  
+  //city.drawStreets();
   
-  //for (Feature f : streets) {
-  //stroke(100);
-  //strokeWeight(1);
-  //noFill();
-  //beginShape();
-  //for(LatLon ll : f.geometry.coords){
-  //  PVector xy = proj.project(ll);
-  //  vertex(xy.x, xy.y);
-  //}
-  //endShape();
-  //}
+  //fill(0);
+  //stroke(0, 200, 0);
+  //PVector c = proj.project(center);
+  //ellipseMode(CENTER);
+  //ellipse(c.x, c.y, 6, 6);
   
-  ellipseMode(CENTER);
-  
-  fill(0);
-  stroke(0, 200, 0);
-  PVector c = proj.project(center);
-  ellipse(c.x, c.y, 6, 6);
-  
-  //for (Crossroad cr : city.crossroads) {
-  //  stroke(255);
-  //  noFill();
-   
-  //  PVector xy = proj.project(cr.coord);
-  //  ellipse(xy.x, xy.y, 4, 4);
-  //}
-
   for (Vehicle vehicle : city.vehicles) {
    vehicle.size = 5;
    vehicle.draw();
@@ -85,10 +53,7 @@ void draw() {
   //drawGraphNodes(city.graph.getNodeArray());
   //drawGraphEdges(city.graph.getAllEdgeArray());
   
-  popMatrix();  
-  
-  //text(mouse.lat, 5, 25);
-  //text(mouse.lon, 5, 40);
+  popMatrix();
 }
 
 void drawGraphNodes(GraphNode[] nodes){
@@ -121,28 +86,16 @@ void setView(LatLon coord){
   view.y = c.y;
 }
 
-LatLon getCenter(IFeatureCollection fc){
-  LatLon[] bound = fc.bounds();
-  return new LatLon(
-    (bound[0].lat + bound[1].lat) / 2,
-    (bound[0].lon + bound[1].lon) / 2
-  );
-}
-
 void keyPressed() {
   //float step = map(camera.zoom, 0, 1, 100, 10);
   float step = .0009;
-  float z = .1;
   if (keyCode == UP) camera.moveTarget(step, 0);
   if (keyCode == DOWN) camera.moveTarget(-step, 0);
   if (keyCode == LEFT) camera.moveTarget(0, -step);
   if (keyCode == RIGHT) camera.moveTarget(0, step);
 
-  if (key == '1') {
-    camera.zoomOut(z);
-  }
-
-  if (key == '2') {
-    camera.zoomIn(z);
-  }
+  if (key == '-') camera.zoomOut();
+  if (key == '=') camera.zoomIn();
+  if (key == '0') camera.lookAt(center);  
+  if (key == ' ') saveFrame("rbk-foresight_###.jpg");
 }
