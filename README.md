@@ -18,5 +18,9 @@
 ### Processing Sketches
 [NeuralNet Noises Sketch](http://openprocessing.org/sketch/11152)
 
+### GitHub
+[osm-pathfinding](https://github.com/mplewis/osm-pathfinding)
+[graphhopper](https://github.com/graphhopper/graphhopper/blob/0.5/docs/core/routing.md)
+
 ### Articles
 [World Economic Forum](http://roberthodgin.com/world-economic-forum-w-zoe-keating/)
