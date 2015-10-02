@@ -2,7 +2,7 @@ import pathfinder.*;
 
 class Driver {
   public City city;
-  public int algorithm = 0;
+  public int algorithm = 2;
   
   private float f = 1.0f;
   
@@ -17,39 +17,35 @@ class Driver {
     this.vehicle = v;
   }
   
-  public void navigate(){
-    if(this.vehicle == null) return;
+  public Route navigate(LatLon from, LatLon to){
+    Crossroad crFrom = this.city.findNearestCrossroadTo(from);
+    Crossroad crTo   = this.city.findNearestCrossroadTo(to);
+
+    return navigate(crFrom, crTo);
+  }
+
+  public Route navigate(Crossroad from, Crossroad to){
+    int start  = this.city.getCrossroadIndex(from);
+    int finish = this.city.getCrossroadIndex(to);
     
-    IGraphSearch finder = makePathFinder(this.city.graph, algorithm);
-    finder.search(this.getStart(), this.getEnd(), true);
-    GraphNode[] graphRoute = finder.getRoute();
-    
-    if(graphRoute.length > 0){
-      Route route = new Route();
-      for(GraphNode node : graphRoute){
-        int id = node.id();
-        Crossroad cr = city.crossroads.get(id);
-        route.chain(cr);
-      }
-         
-      this.vehicle.move(route);
-    }else{
-      navigate();
-    }
+    return navigate(start, finish);
+  }
+
+  public Route navigate(int from, int to){
+    GraphNode[] graphRoute = findRoute(from, to);
+    if(graphRoute.length == 0) return null;
+
+    Route route = new Route(city, graphRoute);
+    if(this.vehicle != null) this.vehicle.move(route);
+    return route;
   }
   
-  private int getStart(){
-    //return 34;
-    int n = this.city.graph.getNbrNodes();
-    return (int) random(n);
+  public GraphNode[] findRoute(int from, int to){
+    IGraphSearch finder = makePathFinder(this.city.graph, this.algorithm);
+    finder.search(from, to);
+    return finder.getRoute();
   }
-  
-  private int getEnd(){
-    //return 24;
-    int n = this.city.graph.getNbrNodes();
-    return (int) random(n);
-  }
-  
+
   IGraphSearch makePathFinder(Graph graph, int alg){
     IGraphSearch pf = null;
     

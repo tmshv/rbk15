@@ -20,9 +20,9 @@ class GeoJSON implements IFeatureCollection{
   }
   
   LatLon[] bounds(){
-    float min_lat = 1000000000;
+    float min_lat = Float.MAX_VALUE;
     float max_lat = 0;
-    float min_lon = 1000000000;
+    float min_lon = Float.MAX_VALUE;
     float max_lon = 0;
     
     for (Feature f : features) {

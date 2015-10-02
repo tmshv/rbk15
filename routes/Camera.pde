@@ -3,7 +3,7 @@ class Camera{
   IProjector projector;
   PVector offset;
 
-  private boolean following;
+
   private int zoom = 1;
   
   Camera(IProjector p, PVector o){
@@ -21,21 +21,12 @@ class Camera{
   }
   
   void moveTarget(float lat, float lon){
-    if(this.following){
-      this.following = false;
-      this.target = this.target.clone();
-    }
     this.target.lat += lat;
     this.target.lon += lon;
   }
   
   void lookAt(LatLon target){
     this.target.setLatLon(target);
-  }
-  
-  void follow(LatLon target){
-    this.target = target;
-    this.following = true;
   }
   
   void update(){

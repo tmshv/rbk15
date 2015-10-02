@@ -1,10 +1,9 @@
-class Geometry{
-  public ArrayList<LatLon> coords;
+class Geometry extends LatLonPath{
   public String type;
   
   public Geometry(ArrayList<LatLon> coords){
+    super(coords);
     this.type = "Polygon";
-    this.coords = coords;
   }
   
   public Geometry(JSONObject geometry){
@@ -26,5 +25,9 @@ class Geometry{
   
   LatLon last(){
     return this.coords.get(this.coords.size() - 1);
+  }
+
+  Geometry clone(){
+    return new Geometry(super.clone().coords);
   }
 }

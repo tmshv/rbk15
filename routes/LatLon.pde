@@ -35,11 +35,18 @@ class LatLon {
   public LatLon sub(LatLon ll){
     return this.sub(ll.lat, ll.lon);
   }
-
-  public float dist(LatLon ll){
-    float dlat = this.lat - ll.lat;
-    float dlon = this.lon - ll.lon;
-    return sqrt(dlat*dlat + dlon*dlon);
+  
+  public float dist(LatLon ll) {
+    float R = 6378137;
+    
+    float dLat = radians(ll.lat - this.lat);
+    float dLon = radians(ll.lon - this.lon);
+    float lat1 = radians(this.lat);
+    float lat2 = radians(ll.lat);
+    
+    float a = pow(sin(dLat / 2),2) + pow(sin(dLon / 2),2) * cos(lat1) * cos(lat2);
+    float c = 2 * asin(sqrt(a));
+    return R * c;
   }
   
   boolean isEqual(LatLon ll){

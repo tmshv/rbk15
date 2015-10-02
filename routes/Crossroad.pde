@@ -1,28 +1,36 @@
 class Crossroad {
-  ArrayList<Feature> roads;
+  ArrayList<Road> roads;
   LatLon coord;
-  
-  public Crossroad(LatLon coord){
-    this.roads = new ArrayList<Feature>(); 
+  GraphNode node;
+
+  public Crossroad(LatLon coord, GraphNode node){
+    this.roads = new ArrayList<Road>(); 
     this.coord = coord;
+    this.node = node;
   }
   
-  Crossroad addRoad(Feature road){
+  Crossroad addRoad(Road road){
     this.roads.add(road);
     return this;
   }
   
-  boolean has(Feature segment){
-    for(Feature f : this.roads){
-      if(f == segment) return true;
+  boolean has(Road road){
+    for(Road f : this.roads){
+      if(f == road) return true;
     }
     return false;
   }
   
-  Feature both(Crossroad cr){
-    for(Feature f : this.roads){
-      if(cr.has(f)) return f;
-    }
-    return null;
-  }
+  /**
+  * Find a road for moving from cr to this
+  **/
+  // Feature arrive(Crossroad cr){
+  //   for(Feature f : cr.roads){
+
+  //     if (f.geometry.last().equals(cr.coord)) return f;
+
+  //     // if(this.has(f)) return f;
+  //   }
+  //   return null;
+  // }
 }
